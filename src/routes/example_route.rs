@@ -15,19 +15,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-extern crate warp;
 use warp::Filter;
-use tokio::sync::oneshot;
 
-pub mod routes;
+pub mod sub_path;
 
-#[tokio::main]
-async fn main() {
-    let (tx, rx) = oneshot::channel();
-    let (addr, server) = warp::serve(routes::route()).bind_with_graceful_shutdown(([127, 0, 0, 1], 3030), async { println!("inside"); rx.await.ok(); });
+pub fn route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let ep1 = warp::path("ep1").map(|| { "endpoint 1" });
+    let sub_path = sub_path::route();
 
-    tokio::task::spawn(server);
-
-    loop {}
-    let _ = tx.send(());
+    warp::path("example_route").and(ep1.or(sub_path))
 }
