@@ -15,8 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use warp::Filter;
+use actix_web::{HttpResponse, web, get};
 
-pub fn route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path("sub_path").and(warp::path("ep2").map(|| { "endpoint 2" }))
+#[get("/ep2")]
+async fn ep2() -> HttpResponse {
+    HttpResponse::Ok().body("ep2")
+}
+
+pub fn route() -> actix_web::Scope {
+    web::scope("sub_path")
+        .service(ep2)
 }

@@ -15,13 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use warp::Filter;
-
+use actix_web::{web, HttpResponse};
 mod example_route;
 
-pub fn route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    let er = example_route::route();
-
-    er
+pub fn route() -> actix_web::Scope {
+    example_route::route()
 }
 

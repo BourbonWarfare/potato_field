@@ -15,19 +15,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-extern crate warp;
-use warp::Filter;
-use tokio::sync::oneshot;
+use actix_web::{HttpServer, App};
 
 pub mod routes;
 
-#[tokio::main]
-async fn main() {
-    let (tx, rx) = oneshot::channel();
-    let (addr, server) = warp::serve(routes::route()).bind_with_graceful_shutdown(([127, 0, 0, 1], 3030), async { println!("inside"); rx.await.ok(); });
-
-    tokio::task::spawn(server);
-
-    loop {}
-    let _ = tx.send(());
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new().service(routes::route())
+    })
+    .bind(("127.0.0.1", 3030))?
+    .run()
+    .await
 }
